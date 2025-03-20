@@ -12,5 +12,8 @@ setup(
         "langchain-text-splitters",
         "levenshtein",
         "openai",
+        "pdfplumber",
+        "Pillow",
+        "tabulate"
     ],
 )
