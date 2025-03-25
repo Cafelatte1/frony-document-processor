@@ -1,5 +1,6 @@
 .venv
 .vscode
+.env
 .git
 *_dev.py
 __pycache__
