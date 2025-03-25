@@ -1,7 +1,6 @@
 .venv
 .vscode
 .git
-test.ipynb
 *_dev.py
 __pycache__
 .cache
