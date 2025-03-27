@@ -12,18 +12,26 @@ class ParserTXT():
     def __init__(self):
         pass
 
-    def parse(self, file_obj: io.BytesIO):
+    def parse(self, file: io.BytesIO | str):
+        if isinstance(file, str):
+            with open(file, 'r', encoding='utf-8') as f:
+                file = f.read()
+        else:
+            file.seek(0)
+            file = file.read().decode('utf-8')
         page_container = [{
             'page_number': 1,
-            'page_content': file_obj.read().decode('utf-8').strip()
+            'page_content': file.strip()
         }]
         page_container = pd.DataFrame(page_container)
         return page_container
     
 class ParserPDF():
-    def __init__(self):
-        pass
-    
+    def __init__(self, x_tolerance_ratio=0.15, keep_blank_chars=True):
+        self.extract_words_params = {
+            "x_tolerance_ratio": x_tolerance_ratio,
+            "keep_blank_chars": keep_blank_chars,
+        }
     @staticmethod
     def is_overlap(box1, box2):
         # box1의 우측 상단이 box2의 좌측 하단보다 왼쪽에 있거나
@@ -48,7 +56,7 @@ class ParserPDF():
     def get_page_data(self, page):
         page_data = {"text": [], "table": []}
         # create text data
-        for word in page.extract_words(keep_blank_chars=True):
+        for word in page.extract_words(**self.extract_words_params):
             page_data["text"].append({
                 "content": word["text"],
                 "coord": (word["x0"], word["top"], word["x1"], word["bottom"]),
@@ -69,10 +77,10 @@ class ParserPDF():
         page_data = {k: pd.DataFrame(v) for k, v in page_data.items()}
         # post-processing for text
         if len(page_data["text"]) > 0:
-            page_data["text"] = page_data["text"].groupby(page_data["text"]["coord"].apply(lambda x: (x[1] + x[3] / 2)).astype("int"), sort=False, as_index=False).agg({"content": " ".join, "coord": "first"})
+            page_data["text"] = page_data["text"].groupby(page_data["text"]["coord"].apply(lambda x: (x[1] + x[3]) / 2).astype("int"), sort=False, as_index=False).agg({"content": " ".join, "coord": "first"})
         # post-processing for table
         if len(page_data["table"]) > 0:
-            page_data["table"] = page_data["table"].groupby(page_data["table"]["coord"].apply(lambda x: (x[1] + x[3] / 2)).astype("int"), sort=False, as_index=False).agg({"content": " ".join, "coord": "first"})
+            page_data["table"] = page_data["table"].groupby(page_data["table"]["coord"].apply(lambda x: (x[1] + x[3]) / 2).astype("int"), sort=False, as_index=False).agg({"content": " ".join, "coord": "first"})
             page_data["table"]["content"] = page_data["table"]["content"].apply(lambda x: f"<표>\n{x}\n</표>")
             for tb_coord in page_data["table"]["coord"]:
                 mask = page_data["text"]["coord"].apply(lambda x: not self.is_overlap(x, tb_coord))
@@ -81,8 +89,8 @@ class ParserPDF():
         df = df.iloc[df["coord"].apply(lambda x: x[1]).argsort()].reset_index(drop=True)
         return "\n".join(df["content"])
 
-    def parse(self, file_obj: io.BytesIO):
-        doc = pdfplumber.open(file_obj)
+    def parse(self, file: io.BytesIO | str):
+        doc = pdfplumber.open(file)
         page_container = []
         for page_number, page in enumerate(doc.pages):
             page_container.append({
@@ -103,7 +111,7 @@ class ParserPPTX():
         data = base64.b64encode(buffer.getvalue()).decode("utf-8")
         return data
 
-    def pptx_to_pdf(self, file_obj: io.BytesIO):
+    def pptx_to_pdf(self, file: io.BytesIO):
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)
         # 임시 PPTX 파일 생성
@@ -111,15 +119,15 @@ class ParserPPTX():
         src_path = os.path.join(self.cache_dir, f"{file_id}.pptx")
         dst_path = os.path.join(self.cache_dir, f"{file_id}.pdf")
         with open(src_path, 'wb') as f:
-            file_obj.seek(0)
-            f.write(file_obj.read())
+            file.seek(0)
+            f.write(file.read())
         try:
             libreoffice_path = r'"C:\Program Files\LibreOffice\program\soffice.exe"' if platform.system() == "Windows" else "soffice"
             os.system(f"{libreoffice_path} --headless --convert-to pdf --outdir {self.cache_dir} {src_path}")
             print(f"complete conversion from PPTX to PDF / output_path={dst_path}")
             with open(dst_path, 'rb') as f:
-                file_obj = io.BytesIO(f.read())
-            return file_obj
+                file = io.BytesIO(f.read())
+            return file
         except Exception as e:
             print(f"error in conversion -> {e}")
             return None
@@ -130,12 +138,14 @@ class ParserPPTX():
             if os.path.exists(dst_path):
                 os.remove(dst_path)
 
-    def parse(self, file_obj: io.BytesIO):
+    def parse(self, file: io.BytesIO | str):
         try:
-            doc = pdfplumber.open(self.pptx_to_pdf(file_obj))
+            if isinstance(file, str):
+                with open(file, 'rb') as f:
+                    file = io.BytesIO(f.read())
+            doc = pdfplumber.open(self.pptx_to_pdf(file))
             page_container = []
             for page_number, page in enumerate(doc.pages):
-                print(f"page_number={page_number}")
                 buffer = io.BytesIO()
                 img = page.to_image(resolution=self.resolution).original
                 img.save(buffer, format="png")
@@ -161,9 +171,9 @@ class ParserPDFImage():
         data = base64.b64encode(buffer.getvalue()).decode("utf-8")
         return data
     
-    def parse(self, file_obj: io.BytesIO):
+    def parse(self, file: io.BytesIO | str):
         try:
-            doc = pdfplumber.open(file_obj)
+            doc = pdfplumber.open(file)
             page_container = []
             for page_number, page in enumerate(doc.pages):
                 buffer = io.BytesIO()
@@ -191,9 +201,9 @@ class ParserImage():
         data = base64.b64encode(buffer.getvalue()).decode("utf-8")
         return data
     
-    def parse(self, file_obj: io.BytesIO):
+    def parse(self, file: io.BytesIO | str):
         try:
-            img = Image.open(file_obj)
+            img = Image.open(file)
             buffer = io.BytesIO()
             img.save(buffer, format='PNG')
             page_container = [{
@@ -205,3 +215,39 @@ class ParserImage():
         finally:
             if 'buffer' in locals():
                 buffer.close()
+
+"""
+# For future reference (spacing words in PDF parser)
+threshold = 0.15
+max_spaces = 2
+text_container = []
+for fname, page_dict in tqdm(page_container.items()):
+    for page_number, page in page_dict.items():
+        words = []
+        for word in page.extract_words(keep_blank_chars=True):
+            words.append({
+                "content": word["text"],
+                "coord": (word["x0"], word["top"], word["x1"], word["bottom"]),
+            })
+        if len(words) == 0:
+            continue
+        words = pd.DataFrame(words)
+        words = words.groupby(words["coord"].apply(lambda x: (x[1] + x[3] / 2)).astype("int"), sort=False, as_index=False).agg({"content": " ".join, "coord": "first"})
+        spacing_words = []
+        val = np.stack(words["coord"].apply(lambda x: (x[1] + x[3]) / 2)).std() * threshold
+        for i in range(len(words) - 1):
+            curr_ele = (words["coord"].iloc[i][1] + words["coord"].iloc[i][3]) / 2
+            next_ele = (words["coord"].iloc[i + 1][1] + words["coord"].iloc[i + 1][3]) / 2
+            if next_ele - curr_ele > val:
+                spacing_words.append(words["content"].iloc[i])
+                for _ in range( min(max_spaces, int((next_ele - curr_ele) // val)) ):
+                    spacing_words.append("\n")
+            else:
+                spacing_words.append(words["content"].iloc[i])
+        spacing_words.append(words["content"].iloc[-1])
+        text_container.append({
+            "fname": fname,
+            "page_number": page_number,
+            "text": "\n".join(spacing_words)
+        })
+"""
