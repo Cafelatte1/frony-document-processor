@@ -1,23 +1,82 @@
 # Frony Doument Processor
+[Content]
+
+## Why use Frony Doument Processor?
+### Image Parsing for PPTX, PDF
 > [!NOTE]
-> Looking for the JS/TS library? Check out [LangChain.js](https://github.com/langchain-ai/langchainjs).
-
-LangChain is a framework for building LLM-powered applications. It helps you chain
-together interoperable components and third-party integrations to simplify AI
-application development —  all while future-proofing decisions as the underlying
-technology evolves.
-
-```bash
-pip install -U langchain
+> Libreoffice should be installed for ParserPPTX
+* Parse PPTX and PDF files as images and output base64-encoded data for LLMs.
+```python
+parser = ParserPPTX()
+df = parser.parse("test_files/test_pptx.pptx")
+df
+```
+```
+page_number	page_content
+1	iVBORw0KGgoAAAANSUhEUgAAD6EAAAjKCAIAAADiFw3ZAA...
+2	iVBORw0KGgoAAAANSUhEUgAAD6EAAAjKCAIAAADiFw3ZAA...
+3	iVBORw0KGgoAAAANSUhEUgAAD6EAAAjKCAIAAADiFw3ZAA...
 ```
 
-To learn more about LangChain, check out
-[the docs](https://python.langchain.com/docs/introduction/). If you’re looking for more
-advanced customization or agent orchestration, check out
-[LangGraph](https://langchain-ai.github.io/langgraph/), our framework for building
-controllable agent workflows.
+### Auto Table Extraction for PDF
+* The in-built algorithm extracts tables in markdown style, which works well for LLMs.
+```python
+# Attention is all you need
+from frony_document_processor.parser import ParserPDF
+parser = ParserPDF()
+df = parser.parse("test_files/test_pdf.pdf")
+df["page_content"].iloc[-6]
+```
+```
+Table 4: The Transformer generalizes well to English constituency parsing (Results are on Section 23
+of WSJ)
+Parser Training WSJ 23 F1
 
-## Why use LangChain?
+|    | Parser                         | Training               | WSJ23F1   |
+|---:|:-------------------------------|:-----------------------|:----------|
+|  0 | Vinyals&Kaiserelal. (2014)[37] | WSJonly,discriminative | 88.3      |
+|    | Petrovetal. (2006)[29]         | WSJonly,discriminative | 90.4      |
+|    | Zhuetal. (2013)[40]            | WSJonly,discriminative | 90.4      |
+|    | Dyeretal. (2016)[8]            | WSJonly,discriminative | 91.7      |
+|  1 | Transformer(4layers)           | WSJonly,discriminative | 91.3      |
+|  2 | Zhuetal. (2013)[40]            | semi-supervised        | 91.3      |
+|    | Huang&Harper(2009)[14]         | semi-supervised        | 91.3      |
+|    | McCloskyetal. (2006)[26]       | semi-supervised        | 92.1      |
+|    | Vinyals&Kaiserelal. (2014)[37] | semi-supervised        | 92.1      |
+|  3 | Transformer(4layers)           | semi-supervised        | 92.7      |
+|  4 | Luongetal. (2015)[23]          | multi-task             | 93.0      |
+|    | Dyeretal. (2016)[8]            | generative             | 93.3      |
+
+Vinyals & Kaiser el al. (2014) [37] WSJ only, discriminative 88.3
+```
+
+### PDF Page Search for LLM based chunking
+* LLM based chunking is advanced technique for 
+
+## Easy & Convenient Usage
+```
+from frony_document_processor.parser import ParserTXT
+from frony_document_processor.parser import ParserPDF
+from frony_document_processor.parser import ParserPPTX
+from frony_document_processor.parser import ParserPDFImage
+from frony_document_processor.parser import ParserImage
+
+from frony_document_processor.chunker import RuleBasedTextChunker
+from frony_document_processor.chunker import LLMBasedTextChunker
+from frony_document_processor.chunker import LLMBasedImageChunker
+
+from frony_document_processor.embedder import OpenAIEmbedder
+from frony_document_processor.embedder import SentenceTransformerEmbedder
+```
+
+
+## Auto Table Extraction for PDF
+
+
+
+## sfsdf
+
+[Content]
 
 LangChain helps developers build applications powered by LLMs through a standard
 interface for models, embeddings, vector stores, and more. 
@@ -31,7 +90,7 @@ experiments to find the best choice for your application’s needs. As the indus
 frontier evolves, adapt quickly — LangChain’s abstractions keep you moving without
 losing momentum.
 
-## LangChain’s ecosystem
+## Installation & Prequirements
 While the LangChain framework can be used standalone, it also integrates seamlessly
 with any LangChain product, giving developers a full suite of tools when building LLM
 applications. 
