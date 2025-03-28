@@ -45,7 +45,7 @@ Parser Training WSJ 23 F1
 |  2 | Zhuetal. (2013)[40]            | semi-supervised        | 91.3      |
 ```
 
-### PDF Page Search for LLM based chunking
+### PDF Page Search Algorithm for LLM based chunking
 * LLM-based chunking is an advanced technique for RAG
 * When using this approach, there is a key challenge is determining where a chunk originates
 * The **jaccard similarity score** and **relative positional score** are used for scoring
