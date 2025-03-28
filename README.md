@@ -83,3 +83,26 @@ page_number	chunk_type	chunk_id	chunk_content
 3	llm_text	0	### 1. Transformer 모델 아키텍처\n- Transformer는 인코더...
 3	llm_text	0	### 1. 스케일된 점곱 주의 (Scaled Dot-Product Attentio
 ```
+## Best Practice
+### Vector DB with yielded chunks
+* Invert the vector to DB in batches, not all at once
+* Users can search documents before the entire dataset is fully processed
+```python
+async def fn_process(page_conatiner, chunkers, doc_id, db, collection, batch_size=4):
+    max_progress_value = 100.0 / len(chunkers)
+    for idx, chunker in enumerate(chunkers):
+        # Frony Document Manager - Chunker
+        chunk_generator = chunker.chunk(page_conatiner)
+        total_chunks = next(chunk_generator)
+        data = []
+        for chunk in chunk_generator:
+            data.append(chunk)
+            if len(data) >= batch_size:
+                # Invert the vector to DB in batches, not all at once
+                if await fn_insert_vector(data, doc_id, collection):
+                    await fn_update_progress(data, doc_id, total_chunks, max_progress_value, db)
+                data = []
+        if data:
+            if await fn_insert_vector(data, doc_id, collection):
+                await fn_update_progress(None, doc_id, total_chunks, max_progress_value * (idx + 1), db)
+```
