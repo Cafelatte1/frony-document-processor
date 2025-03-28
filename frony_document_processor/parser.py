@@ -101,7 +101,8 @@ class ParserPDF():
         return page_container
 
 class ParserPPTX():
-    def __init__(self, cache_dir="./.cache/parser-pptx/", resolution=300):
+    def __init__(self, libreoffice_path=None, cache_dir="./.cache/parser-pptx/", resolution=300):
+        self.libreoffice_path = libreoffice_path
         self.cache_dir = cache_dir
         self.resolution = resolution
 
@@ -122,7 +123,8 @@ class ParserPPTX():
             file.seek(0)
             f.write(file.read())
         try:
-            libreoffice_path = r'"C:\Program Files\LibreOffice\program\soffice.exe"' if platform.system() == "Windows" else "soffice"
+            if libreoffice_path is None:
+                libreoffice_path = r'"C:\Program Files\LibreOffice\program\soffice.exe"' if platform.system() == "Windows" else "soffice"
             os.system(f"{libreoffice_path} --headless --convert-to pdf --outdir {self.cache_dir} {src_path}")
             print(f"complete conversion from PPTX to PDF / output_path={dst_path}")
             with open(dst_path, 'rb') as f:
