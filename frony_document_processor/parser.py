@@ -81,7 +81,7 @@ class ParserPDF():
         # post-processing for table
         if len(page_data["table"]) > 0:
             page_data["table"] = page_data["table"].groupby(page_data["table"]["coord"].apply(lambda x: (x[1] + x[3]) / 2).astype("int"), sort=False, as_index=False).agg({"content": " ".join, "coord": "first"})
-            page_data["table"]["content"] = page_data["table"]["content"].apply(lambda x: f"<표>\n{x}\n</표>")
+            page_data["table"]["content"] = page_data["table"]["content"].apply(lambda x: f"\n{x}\n")
             for tb_coord in page_data["table"]["coord"]:
                 mask = page_data["text"]["coord"].apply(lambda x: not self.is_overlap(x, tb_coord))
                 page_data["text"] = page_data["text"][mask].reset_index(drop=True)
