@@ -10,6 +10,7 @@ pip install -U frony-document-processor
 > Libreoffice should be installed for ParserPPTX
 * Parse PPTX and PDF files as images and output base64-encoded data for LLMs.
 ```python
+from frony_document_processor.parser import ParserPPTX
 parser = ParserPPTX()
 df = parser.parse("test_files/test_pptx.pptx")
 df
