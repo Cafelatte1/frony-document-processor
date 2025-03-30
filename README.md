@@ -5,7 +5,7 @@ pip install -U frony-document-processor
 ```
 
 ## Why use Frony Doument Processor?
-### Image Parsing for PPTX, PDF
+### Convenient Image Parsing for PPTX, PDF
 > [!NOTE]
 > [Libreoffice](https://www.libreoffice.org/download/download-libreoffice/) is required for ParserPPTX.
 * Parse PPTX and PDF files as images and output base64-encoded data for LLMs.
@@ -46,7 +46,7 @@ Parser Training WSJ 23 F1
 |  2 | Zhuetal. (2013)[40]            | semi-supervised        | 91.3      |
 ```
 
-### PDF Page Search Algorithm for LLM based chunking
+### PDF Page Search Algorithm for LLM-Based Chunking
 * LLM-based chunking is an advanced technique for RAG.
 * When using this approach, there is a key challenge is determining where a chunk originates.
 * The **jaccard similarity score** and **relative positional score** are used for matching each chunks to page number.
@@ -85,7 +85,7 @@ page_number	chunk_type	chunk_id	chunk_content
 3	llm_text	0	### 1. 스케일된 점곱 주의 (Scaled Dot-Product Attentio
 ```
 ## Best Practice
-### Vector DB with yielded chunks
+### Batching DB Insertion with Yielded Chunks
 * Insert the vector to DB in batches, not all at once.
 * Use a progress bar to help users recognize how much data has been processed.
 * Users can search documents even before the entire dataset is fully processed.
