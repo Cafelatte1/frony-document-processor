@@ -7,7 +7,7 @@ pip install -U frony-document-processor
 ## Why use Frony Doument Processor?
 ### Image Parsing for PPTX, PDF
 > [!NOTE]
-> [Libreoffice](https://www.libreoffice.org/download/download-libreoffice/) should be installed for ParserPPTX
+> [Libreoffice](https://www.libreoffice.org/download/download-libreoffice/) is required for ParserPPTX
 * Parse PPTX and PDF files as images and output base64-encoded data for LLMs.
 ```python
 from frony_document_processor.parser import ParserPPTX
