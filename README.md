@@ -90,6 +90,7 @@ page_number	chunk_type	chunk_id	chunk_content
 * Use a progress bar to help users recognize how much data has been processed.
 * Users can search documents even before the entire dataset is fully processed.
 ```python
+# Example code snipet
 async def fn_process(page_conatiner, chunkers, doc_id, db, collection, batch_size=4):
     max_progress_value = 100.0 / len(chunkers)
     for idx, chunker in enumerate(chunkers):
