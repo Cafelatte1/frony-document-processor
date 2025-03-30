@@ -7,7 +7,7 @@ pip install -U frony-document-processor
 ## Why use Frony Doument Processor?
 ### Image Parsing for PPTX, PDF
 > [!NOTE]
-> [Libreoffice](https://www.libreoffice.org/download/download-libreoffice/) is required for ParserPPTX
+> [Libreoffice](https://www.libreoffice.org/download/download-libreoffice/) is required for ParserPPTX.
 * Parse PPTX and PDF files as images and output base64-encoded data for LLMs.
 ```python
 from frony_document_processor.parser import ParserPPTX
@@ -47,9 +47,9 @@ Parser Training WSJ 23 F1
 ```
 
 ### PDF Page Search Algorithm for LLM based chunking
-* LLM-based chunking is an advanced technique for RAG
-* When using this approach, there is a key challenge is determining where a chunk originates
-* The **jaccard similarity score** and **relative positional score** are used for scoring
+* LLM-based chunking is an advanced technique for RAG.
+* When using this approach, there is a key challenge is determining where a chunk originates.
+* The **jaccard similarity score** and **relative positional score** are used for matching each chunks to page number.
 ```python
 parser = ParserPDF()
 df = parser.parse("test_files/test_pdf.pdf")
@@ -86,8 +86,8 @@ page_number	chunk_type	chunk_id	chunk_content
 ```
 ## Best Practice
 ### Vector DB with yielded chunks
-* Invert the vector to DB in batches, not all at once
-* Users can search documents before the entire dataset is fully processed
+* Invert the vector to DB in batches, not all at once.
+* Users can search documents before the entire dataset is fully processed.
 ```python
 async def fn_process(page_conatiner, chunkers, doc_id, db, collection, batch_size=4):
     max_progress_value = 100.0 / len(chunkers)
