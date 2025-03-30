@@ -86,8 +86,9 @@ page_number	chunk_type	chunk_id	chunk_content
 ```
 ## Best Practice
 ### Vector DB with yielded chunks
-* Invert the vector to DB in batches, not all at once.
-* Users can search documents before the entire dataset is fully processed.
+* Insert the vector to DB in batches, not all at once.
+* Use a progress bar to help users recognize how much data has been processed.
+* Users can search documents even before the entire dataset is fully processed.
 ```python
 async def fn_process(page_conatiner, chunkers, doc_id, db, collection, batch_size=4):
     max_progress_value = 100.0 / len(chunkers)
