@@ -109,3 +109,18 @@ async def fn_process(page_conatiner, chunkers, doc_id, db, collection, batch_siz
             if await fn_insert_vector(data, doc_id, collection):
                 await fn_update_progress(None, doc_id, total_chunks, max_progress_value * (idx + 1), db)
 ```
+## All Supported Modules
+```python
+from frony_document_processor.parser import ParserTXT
+from frony_document_processor.parser import ParserPDF
+from frony_document_processor.parser import ParserPPTX
+from frony_document_processor.parser import ParserPDFImage
+from frony_document_processor.parser import ParserImage
+
+from frony_document_processor.chunker import RuleBasedTextChunker
+from frony_document_processor.chunker import LLMBasedTextChunker
+from frony_document_processor.chunker import LLMBasedImageChunker
+
+from frony_document_processor.embedder import OpenAIEmbedder
+from frony_document_processor.embedder import SentenceTransformerEmbedder
+```
