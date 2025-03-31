@@ -120,13 +120,18 @@ from frony_document_processor.parser import ParserPDFImage
 from frony_document_processor.parser import ParserImage
 
 # You can provide prompt template as a parameter 'prompt_template' like below for LLMBasedTextChunker and LLMBasedImageChunker.
-# LLMBasedChunkers also compatible with vLLM server. You can provide server information as two parameters 'llm_server_config', 'llm_model_name' and specify 'llm_model_type=vllm'.
 """
 prompt_template={
     "system": "",
     "user": "",
 },
 """
+# LLMBasedChunkers also compatible with vLLM server. You can provide server information as a parameter like below.
+# LLMBasedTextChunker(
+#     llm_server_config={},
+#     llm_model_name='',
+#     llm_model_type='vllm',
+# )
 from frony_document_processor.chunker import RuleBasedTextChunker
 from frony_document_processor.chunker import LLMBasedTextChunker
 # only compatible with outputs of ParserPDFImage and ParserImage
