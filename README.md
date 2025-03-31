@@ -84,6 +84,7 @@ page_number	chunk_type	chunk_id	chunk_content
 3	llm_text	0	### 1. Transformer 모델 아키텍처\n- Transformer는 인코더...
 3	llm_text	0	### 1. 스케일된 점곱 주의 (Scaled Dot-Product Attentio
 ```
+
 ## Best Practice
 ### Batching DB Insertion with Yielded Chunks
 * Insert the vector to DB in batches, not all at once.
@@ -109,6 +110,7 @@ async def fn_process(page_conatiner, chunkers, doc_id, db, collection, batch_siz
             if await fn_insert_vector(data, doc_id, collection):
                 await fn_update_progress(None, doc_id, total_chunks, max_progress_value * (idx + 1), db)
 ```
+
 ## All Supported Modules
 ```python
 from frony_document_processor.parser import ParserTXT
@@ -119,8 +121,10 @@ from frony_document_processor.parser import ParserImage
 
 from frony_document_processor.chunker import RuleBasedTextChunker
 from frony_document_processor.chunker import LLMBasedTextChunker
+# only compatible for output of ParserPDFImage and ParserImage
 from frony_document_processor.chunker import LLMBasedImageChunker
 
+# OPENAI_API_KEY is required in .env file
 from frony_document_processor.embedder import OpenAIEmbedder
 from frony_document_processor.embedder import SentenceTransformerEmbedder
 ```
