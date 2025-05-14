@@ -1,4 +1,4 @@
-# Doument Processor for RAG
+# Frony Doument Processor for RAG
 The Frony Document Processor for RAG is designed to facilitate seamless document processing for large language models (LLMs) by transforming various document formats into structured data and images. It provides a suite of tools to parse, extract, and manage content from PPTX and PDF files, enabling the efficient handling of documents for downstream applications such as Retrieval-Augmented Generation (RAG).
 ```bash
 pip install -U frony-document-processor
@@ -22,7 +22,7 @@ page_number	page_content
 3	iVBORw0KGgoAAAANSUhEUgAAD6EAAAjKCAIAAADiFw3ZAA...
 ```
 
-### Auto Table Extraction for PDF
+### Auto Table Extraction
 * The in-built algorithm extracts tables in markdown style, which works well for LLMs.
 ```python
 # Attention is all you need
