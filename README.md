@@ -115,8 +115,8 @@ async def fn_process(page_conatiner, chunkers, doc_id, db, collection, batch_siz
 ```python
 from frony_document_processor.parser import ParserTXT
 from frony_document_processor.parser import ParserPDF
-from frony_document_processor.parser import ParserDOCX
 from frony_document_processor.parser import ParserPPTX
+from frony_document_processor.parser import ParserDOCX
 from frony_document_processor.parser import ParserPDFImage
 from frony_document_processor.parser import ParserImage
 
