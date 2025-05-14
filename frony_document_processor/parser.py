@@ -5,6 +5,7 @@ import pandas as pd
 import pdfplumber
 from operator import itemgetter
 from PIL import Image
+from docx import Document
 import uuid
 import platform
 
@@ -13,18 +14,22 @@ class ParserTXT():
         pass
 
     def parse(self, file: io.BytesIO | str):
-        if isinstance(file, str):
-            with open(file, 'r', encoding='utf-8') as f:
-                file = f.read()
-        else:
-            file.seek(0)
-            file = file.read().decode('utf-8')
-        page_container = [{
-            'page_number': 1,
-            'page_content': file.strip()
-        }]
-        page_container = pd.DataFrame(page_container)
-        return page_container
+        try:
+            if isinstance(file, str):
+                with open(file, 'r', encoding='utf-8') as f:
+                    file = f.read()
+            else:
+                file.seek(0)
+                file = file.read().decode('utf-8')
+            page_container = [{
+                'page_number': 1,
+                'page_content': file.strip()
+            }]
+            page_container = pd.DataFrame(page_container)
+            return page_container
+        except Exception as e:
+            print(f"error in parsing -> {e}")
+            return None
     
 class ParserPDF():
     def __init__(self, x_tolerance_ratio=0.15, keep_blank_chars=True):
@@ -47,7 +52,7 @@ class ParserPDF():
 
     @staticmethod
     def extract_table(page, table):
-        croppage = page.crop((0, table.bbox[1], page.width, table.bbox[3]))
+        croppage = page.crop((0, max(0, table.bbox[1]), page.width, min(table.bbox[3], page.height)))
         edgel = sorted(croppage.horizontal_edges, key=itemgetter("x0"))[0]
         edger = sorted(croppage.horizontal_edges, key=itemgetter("x1"))[-1]
         table = croppage.extract_table({"vertical_strategy": "lines", "explicit_vertical_lines": [edgel["x0"], edger["x1"]]})
@@ -90,15 +95,19 @@ class ParserPDF():
         return "\n".join(df["content"])
 
     def parse(self, file: io.BytesIO | str):
-        doc = pdfplumber.open(file)
-        page_container = []
-        for page_number, page in enumerate(doc.pages):
-            page_container.append({
-                "page_number": page_number + 1,
-                "page_content": self.get_page_data(page).strip(),
-            })
-        page_container = pd.DataFrame(page_container)
-        return page_container
+        try:
+            doc = pdfplumber.open(file)
+            page_container = []
+            for page_number, page in enumerate(doc.pages):
+                page_container.append({
+                    "page_number": page_number + 1,
+                    "page_content": self.get_page_data(page).strip(),
+                })
+            page_container = pd.DataFrame(page_container)
+            return page_container
+        except Exception as e:
+            print(f"error in parsing -> {e}")
+            return None
 
 class ParserPPTX():
     def __init__(self, cache_dir="./.cache/parser-pptx/", resolution=300):
@@ -157,6 +166,7 @@ class ParserPPTX():
             return page_container
         except Exception as e:
             print(f"error in parsing -> {e}")
+            return None
         finally:
             if 'buffer' in locals():
                 buffer.close()
@@ -187,6 +197,7 @@ class ParserPDFImage():
             return page_container
         except Exception as e:
             print(f"error in parsing -> {e}")
+            return None
         finally:
             if 'buffer' in locals():
                 buffer.close()
@@ -212,6 +223,9 @@ class ParserImage():
             }]
             page_container = pd.DataFrame(page_container)
             return page_container
+        except Exception as e:
+            print(f"error in parsing -> {e}")
+            return None
         finally:
             if 'buffer' in locals():
                 buffer.close()
